@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>田俊杰的个人网页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .header {
+            background-color: #d32f2f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            max-width: 1000px; /* 设置主要内容部分的最大宽度 */
+            margin: auto;
+            background-color: white;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            border-bottom: 2px solid #d32f2f;
+            padding-bottom: 10px;
+        }
+        .profile {
+            display: flex;
+            align-items: center;
+        }
+        .profile img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            margin-right: 20px;
+        }
+        .gallery {
+            position: relative;
+            overflow: hidden;
+            max-width: 100%; /* 设置轮播图的最大宽度 */
+            margin: auto;
+            background-color: #f2f2f2; /* 背景色填充 */
+            height: 400px; /* 设置容器固定高度 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .gallery img {
+            max-height: 100%; /* 图片高度最大为容器高度 */
+            max-width: 100%; /* 图片宽度最大为容器宽度 */
+            width: auto;
+            height: auto;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            transition: transform 0.5s ease;
+            object-fit: contain; /* 保持图片长宽比，居中填充 */
+        }
+        .gallery-container {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            background-color: rgba(255, 255, 255, 0.5); /* 背景透明度 */
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            z-index: 1;
+            opacity: 0.7; /* 按钮透明度 */
+        }
+        .prev {
+            left: 10px;
+        }
+        .next {
+            right: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+        }
+        .modal-caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+            height: 150px;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>田俊杰的个人网页</h1>
+        <p>法师 &bull; 模型爱好者</p>
+    </div>
+
+    <div class="content">
+        <div class="section" id="about">
+            <h2>关于我</h2>
+            <div class="profile">
+                <img src="avatar.jpg" alt="田俊杰的头像">
+                <p>我是一条龙，爱拼模型。</p>
+            </div>
+        </div>
+
+        <div class="section" id="portfolio">
+            <h2>模型作品展示</h2>
+            <div class="gallery">
+                <button class="prev" onclick="prevSlide()">&lt;</button>
+                <div class="gallery-container">
+                    <img src="模型图片1.jpg" alt="模型1" onclick="openModal(this)">
+                    <img src="模型图片2.jpg" alt="模型2" onclick="openModal(this)">
+                    <img src="模型图片3.jpg" alt="模型3" onclick="openModal(this)">
+                    <!-- 添加更多模型图片-->
+                </div>
+                <button class="next" onclick="nextSlide()">&gt;</button>
+            </div>
+        </div>
+
+        <div class="section" id="contact">
+            <h2>联系信息</h2>
+            <ul class="contact-info">
+                <li>电子邮件: example@example.com</li>
+                <li>电话: 123-456-7890</li>
+                <!-- 添加更多联系信息 -->
+            </ul>
+        </div>
+
+        <div class="section" id="services">
+            <h2>服务介绍</h2>
+            <ul class="services">
+                <li>模型拼装指导</li>
+                <li>模型定制服务</li>
+                <!-- 添加更多服务介绍 -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <div class="modal-caption" id="caption"></div>
+    </div>
+
+    <script>
+        var slideIndex = 0;
+        var slides = document.querySelector(".gallery-container").getElementsByTagName("img");
+        var totalSlides = slides.length;
+
+        function showSlide(n) {
+            slideIndex = (n + totalSlides) % totalSlides;
+            for (var i = 0; i < totalSlides; i++) {
+                slides[i].style.transform = "translateX(-" + slideIndex * 100 + "%)";
+            }
+        }
+
+        function prevSlide() {
+            showSlide(slideIndex - 1);
+        }
+
+        function nextSlide() {
+            showSlide(slideIndex + 1);
+        }
+
+        var autoPlayInterval = setInterval(nextSlide, 3000);
+
+        function openModal(element) {
+            var modal = document.getElementById("myModal");
+            var modalImg = document.getElementById("modalImg");
+            var captionText = document.getElementById("caption");
+            modal.style.display = "block";
+            modalImg.src = element.src;
+            captionText.innerHTML = element.alt;
+        }
+
+        function closeModal() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+
+        document.querySelector(".gallery").addEventListener("mouseover", function () {
+            clearInterval(autoPlayInterval);
+        });
+
+        document.querySelector(".gallery").addEventListener("mouseout", function () {
+            autoPlayInterval = setInterval(nextSlide, 3000);
+        });
+    </script>
+</body>
+</html>
+
